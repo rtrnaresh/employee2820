@@ -182,34 +182,53 @@ interface FormData {
 
 // ==================== CONSTANTS ====================
 
-const DEPARTMENTS = [
-  'Computer Science & Engineering',
-  'Computer Engineering',
-  'Information Technology',
-  'Electronics & Telecommunication',
-  'Electrical Engineering',
-  'Mechanical Engineering',
-  'Civil Engineering',
-  'Mechatronics',
-  'Applied Sciences',
-  'Management Studies',
-  'Administration',
+export const DEPARTMENTS = [
+  // Bachelor's Degrees (B.E.)
+  "Computer Science & Engineering (AI & ML)",
+  "Computer Engineering",
+  "Civil Engineering",
+  "Electrical Engineering",
+  "Electronics & Telecommunication Engineering (EXTC)",
+  "Information Technology Engineering (IT)",
+  "Mechanical Engineering",
+
+  // Master's Degrees (M.E.)
+  "M.E. Computer Engineering",
+  "M.E. Electronics & Telecommunication Engineering",
+  "M.E. Mechanical Engineering (including Energy Systems & Management)",
+
+  // Diploma Courses
+  "Diploma – Civil Engineering",
+  "Diploma – Artificial Intelligence & Machine Learning (AIML)",
+  "Diploma – Electronics & Telecommunication Engineering (EXTC)",
+  "Diploma – Mechanical Engineering",
+  "Diploma – Mechatronics Engineering",
+
+  // Management Courses (MMS/MBA)
+  "MMS/MBA – Marketing",
+  "MMS/MBA – Finance",
+  "MMS/MBA – Human Resources (HR)",
+  "MMS/MBA – Systems",
+  "MMS/MBA – Operations"
 ];
 
-const BRANCHES = [
-  'CSE-AIML',
-  'Computer Engineering',
-  'Civil',
-  'Electrical',
-  'E&TC',
-  'IT',
-  'Mechanical',
-  'Mechatronics',
+
+export const BRANCHES = [
+  "Computer Science & Engineering (AI & ML)",
+  "Computer Engineering",
+  "Civil Engineering",
+  "Electrical Engineering",
+  "Electronics & Telecommunication Engineering (EXTC)",
+  "Information Technology Engineering (IT)",
+  "Mechanical Engineering",
+  "Mechatronics Engineering",
+  "Artificial Intelligence & Machine Learning (AIML)",
+  "Master of Management Studies"
 ];
 
 const SALUTATIONS = ['Mr.', 'Ms.', 'Mrs.', 'Dr.', 'Prof.'];
 const GENDERS = ['Male', 'Female', 'Other'];
-const CATEGORIES = ['General', 'OBC', 'SC', 'ST'];
+const CATEGORIES = ['Open', 'OBC','VJ-NT','SBC', 'EBC', 'SC', 'ST'];
 const MARITAL_STATUSES = ['Single', 'Married', 'Divorced', 'Widowed'];
 const PROGRAM_TYPES = ['Undergraduate', 'Postgraduate', 'Diploma'];
 const SEMESTERS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
