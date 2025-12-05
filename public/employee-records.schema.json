@@ -1,0 +1,209 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Employee Records Schema",
+  "description": "JSON Schema for Employee Records form data export",
+  "type": "object",
+  "properties": {
+    "personalDetails": {
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string" },
+        "salutation": { "type": "string", "enum": ["", "Mr.", "Ms.", "Mrs.", "Dr.", "Prof."] },
+        "firstName": { "type": "string" },
+        "middleName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "fatherHusbandName": { "type": "string" },
+        "motherName": { "type": "string" },
+        "dateOfJoining": { "type": "string", "format": "date" },
+        "dateOfLeaving": { "type": "string", "format": "date" },
+        "designation": { "type": "string" },
+        "department": { "type": "string" },
+        "mobileNo": { "type": "string", "pattern": "^[0-9]{10}$" },
+        "residenceContactNo": { "type": "string" },
+        "emailId": { "type": "string", "format": "email" },
+        "dateOfBirth": { "type": "string", "format": "date" },
+        "gender": { "type": "string", "enum": ["", "Male", "Female", "Other"] },
+        "category": { "type": "string", "enum": ["", "General", "OBC", "SC", "ST"] },
+        "aadharNo": { "type": "string", "pattern": "^[0-9]{12}$" },
+        "pan": { "type": "string", "pattern": "^[A-Z]{5}[0-9]{4}[A-Z]{1}$" },
+        "maritalStatus": { "type": "string", "enum": ["", "Single", "Married", "Divorced", "Widowed"] },
+        "physicallyChallenged": { "type": "string", "enum": ["", "Yes", "No"] },
+        "fullNameDevanagari": { "type": "string" }
+      },
+      "required": ["fullName", "firstName", "lastName"]
+    },
+    "correspondenceAddress": { "$ref": "#/definitions/Address" },
+    "permanentAddress": { "$ref": "#/definitions/Address" },
+    "sameAsCorrespondence": { "type": "boolean" },
+    "educationalQualifications": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "courseName": { "type": "string" },
+          "instituteName": { "type": "string" },
+          "durationMonths": { "type": "string" },
+          "yearOfPassing": { "type": "string" },
+          "percentageOrStatus": { "type": "string" },
+          "isPhD": { "type": "boolean" },
+          "phdStatus": { "type": "string", "enum": ["", "awarded", "pursuing"] }
+        }
+      }
+    },
+    "academicsRecord": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "department": { "type": "string" },
+          "programType": { "type": "string", "enum": ["", "Undergraduate", "Postgraduate", "Diploma"] },
+          "subjectName": { "type": "string" },
+          "patternName": { "type": "string", "enum": ["", "R19 C-Scheme", "NEP20 Scheme"] },
+          "branch": { "type": "string" },
+          "academicYear": { "type": "string" },
+          "classSemester": { "type": "string" },
+          "studentsAttended": { "type": "string" },
+          "studentsPassed": { "type": "string" }
+        }
+      }
+    },
+    "experience": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string", "enum": ["educational", "industrial", "research"] },
+          "organisation": { "type": "string" },
+          "designation": { "type": "string" },
+          "fromDate": { "type": "string", "format": "date" },
+          "toDate": { "type": "string", "format": "date" },
+          "offerLetterFile": { "type": ["string", "null"] },
+          "experienceLetterFile": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "publications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "publicationType": { "type": "string" },
+          "conferenceSubtypes": { "type": "array", "items": { "type": "string" } },
+          "department": { "type": "string" },
+          "academicYear": { "type": "string" },
+          "title": { "type": "string" },
+          "area": { "type": "string" },
+          "publicationDate": { "type": "string", "format": "date" },
+          "journalConferenceName": { "type": "string" },
+          "publisherName": { "type": "string" },
+          "uploadFile": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "technicalParticipation": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "participationType": { "type": "string" },
+          "department": { "type": "string" },
+          "academicYear": { "type": "string" },
+          "fromDate": { "type": "string", "format": "date" },
+          "toDate": { "type": "string", "format": "date" },
+          "organizationName": { "type": "string" },
+          "topicArea": { "type": "string" },
+          "uploadFile": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "guidance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "guidanceType": { "type": "string" },
+          "department": { "type": "string" },
+          "academicYear": { "type": "string" },
+          "fromDate": { "type": "string", "format": "date" },
+          "toDate": { "type": "string", "format": "date" },
+          "venue": { "type": "string" },
+          "title": { "type": "string" },
+          "noOfScholars": { "type": "string" },
+          "institutionName": { "type": "string" },
+          "status": { "type": "string", "enum": ["", "ongoing", "completed"] },
+          "uploadFile": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "organizedEvents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "department": { "type": "string" },
+          "academicYear": { "type": "string" },
+          "programType": { "type": "string" },
+          "programTitle": { "type": "string" },
+          "fromDate": { "type": "string", "format": "date" },
+          "endDate": { "type": "string", "format": "date" },
+          "venue": { "type": "string" },
+          "noOfParticipants": { "type": "string" },
+          "participantsCourse": { "type": "array", "items": { "type": "string" } },
+          "geoTagPhotos": { "type": "array", "items": { "type": "string" } },
+          "eventReport": { "type": ["string", "null"] },
+          "budgetReport": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "responsibilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "department": { "type": "string" },
+          "academicYear": { "type": "string" },
+          "allottedResponsibility": { "type": "string" },
+          "remarks": { "type": "string" }
+        }
+      }
+    },
+    "salaryDetails": {
+      "type": "object",
+      "properties": {
+        "accountNo": { "type": "string" },
+        "bankName": { "type": "string" },
+        "branchName": { "type": "string" },
+        "paymentBasic": { "type": "string" },
+        "da": { "type": "string" },
+        "hra": { "type": "string" },
+        "gross": { "type": "string" },
+        "payBand": { "type": "string" },
+        "pf": { "type": "string" },
+        "offerLetterFile": { "type": ["string", "null"] },
+        "experienceLetterFile": { "type": ["string", "null"] }
+      }
+    }
+  },
+  "definitions": {
+    "Address": {
+      "type": "object",
+      "properties": {
+        "address": { "type": "string" },
+        "district": { "type": "string" },
+        "taluka": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "pinCode": { "type": "string", "pattern": "^[0-9]{6}$" }
+      }
+    }
+  }
+}
