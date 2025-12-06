@@ -59,6 +59,7 @@ interface EducationRow {
   percentageOrStatus: string;
   isPhD: boolean;
   phdStatus: 'awarded' | 'pursuing' | '';
+  phdCertificateFile: File | null;
 }
 
 interface AcademicsRow {
@@ -82,7 +83,6 @@ interface ExperienceRow {
   fromDate: string;
   toDate: string;
   offerLetterFile: File | null;
-  experienceLetterFile: File | null;
 }
 
 interface PublicationRow {
@@ -97,6 +97,14 @@ interface PublicationRow {
   journalConferenceName: string;
   publisherName: string;
   uploadFile: File | null;
+  // Research Profile IDs
+  selectedProfiles: string[];
+  googleScholarId: string;
+  googleScholarLink: string;
+  scopusId: string;
+  scopusLink: string;
+  orcidId: string;
+  orcidLink: string;
 }
 
 interface TechnicalParticipationRow {
@@ -140,6 +148,7 @@ interface OrganizedEventRow {
   geoTagPhotos: File[];
   eventReport: File | null;
   budgetReport: File | null;
+  appreciationLetter: File | null;
 }
 
 interface ResponsibilityRow {
@@ -161,7 +170,32 @@ interface SalaryDetails {
   payBand: string;
   pf: string;
   offerLetterFile: File | null;
-  experienceLetterFile: File | null;
+}
+
+interface ApprovalRow {
+  id: string;
+  // Subject and Course Details
+  postDesignation: string;
+  faculty: string;
+  approvalAsPer: string;
+  approvalForUGPG: string;
+  // Selection Details
+  postType: string;
+  selectionDoneBy: string;
+  postReservedFor: string;
+  // Appointment Details
+  workType: 'fullTime' | 'partTime' | 'clockHourBasis' | '';
+  approvalType: 'permanent' | 'temporary' | '';
+  appointedOn: string;
+  universityName: string;
+  collegeName: string;
+  // Approval Letter Details
+  payscale: 'isCurrent' | 'isBack' | '';
+  approvalRefNo: string;
+  approvalLetterDate: string;
+  validFromDate: string;
+  toDate: string;
+  documentFile: File | null;
 }
 
 interface FormData {
@@ -171,6 +205,7 @@ interface FormData {
   sameAsCorrespondence: boolean;
   educationalQualifications: EducationRow[];
   academicsRecord: AcademicsRow[];
+  approvalDetails: ApprovalRow[];
   experience: ExperienceRow[];
   publications: PublicationRow[];
   technicalParticipation: TechnicalParticipationRow[];
@@ -234,16 +269,78 @@ const PROGRAM_TYPES = ['Undergraduate', 'Postgraduate', 'Diploma'];
 const SEMESTERS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
 const PUBLICATION_TYPES = ['Journal SCI', 'Journal ESCI', 'SCOPUS', 'WOS', 'IEEE', 'Conference', 'Book (Chapters)', 'Patent', 'Grants'];
 const CONFERENCE_SUBTYPES = ['Conference SCI', 'Conference ESCI', 'Conference SCOPUS', 'Conference IEEE/WOS'];
+const RESEARCH_PROFILES = ['Google Scholar', 'Scopus', 'ORCID iD'];
 const PARTICIPATION_TYPES = ['FDP', 'Workshop', 'STTP', 'Seminar', 'Webinar'];
 const GUIDANCE_TYPES = ['PhD Supervisor', 'PG Project Guide/Guided', 'UG Project Guide/Guided', 'Diploma Project Guide/Guided', 'Mentor (Hackathon, Club, Project, Idea)'];
 const PARTICIPANT_COURSES = ['PhD', 'PG', 'UG', 'Diploma', 'School'];
 
+// Previous Approval Letter constants
+const POST_DESIGNATIONS = ['Principal', 'Professor', 'Associate Professor', 'Assistant Professor'];
+const FACULTIES = ['Engineering', 'Architecture', 'MBA', 'MCA'];
+const APPROVAL_FOR_UGPG = ['All', 'BOS', 'Course'];
+const POST_TYPES = ['Regular', 'Adhoc'];
+const SELECTION_DONE_BY = ['Local Selection Committee', 'University Selection Committee'];
+const POST_RESERVED_FOR = ['OPEN', 'OBC', 'VJ-NT', 'SBC', 'EBC', 'SC', 'ST'];
+const APPOINTED_ON = ['Non-Granted', 'Granted'];
+
+// Indian Universities List
+const INDIAN_UNIVERSITIES = [
+  "University of Mumbai",
+  "Savitribai Phule Pune University",
+  "University of Delhi",
+  "Anna University",
+  "Jawaharlal Nehru University",
+  "Banaras Hindu University",
+  "Jadavpur University",
+  "Calcutta University",
+  "Osmania University",
+  "Aligarh Muslim University",
+  "Gujarat University",
+  "Rajasthan University",
+  "Madras University",
+  "Bangalore University",
+  "Kerala University",
+  "Andhra University",
+  "Gauhati University",
+  "Panjab University",
+  "Mysore University",
+  "Nagpur University",
+  "Dr. Babasaheb Ambedkar Marathwada University",
+  "Shivaji University",
+  "North Maharashtra University",
+  "Solapur University",
+  "Rashtrasant Tukadoji Maharaj Nagpur University",
+  "Sant Gadge Baba Amravati University",
+  "Swami Ramanand Teerth Marathwada University",
+  "Indian Institute of Technology Bombay",
+  "Indian Institute of Technology Delhi",
+  "Indian Institute of Technology Madras",
+  "Indian Institute of Technology Kanpur",
+  "Indian Institute of Technology Kharagpur",
+  "Indian Institute of Technology Roorkee",
+  "Indian Institute of Technology Guwahati",
+  "Indian Institute of Technology Hyderabad",
+  "Birla Institute of Technology and Science",
+  "National Institute of Technology Trichy",
+  "VIT University",
+  "SRM University",
+  "Manipal University",
+  "Amity University",
+  "Lovely Professional University",
+  "Symbiosis International University",
+  "NMIMS University",
+  "Tata Institute of Social Sciences",
+  "Indian Statistical Institute",
+  "All India Institute of Medical Sciences",
+  "Other"
+];
+
 const DEFAULT_EDUCATION_ROWS: EducationRow[] = [
-  { id: '1', courseName: 'SSC', instituteName: '', durationMonths: '', yearOfPassing: '', percentageOrStatus: '', isPhD: false, phdStatus: '' },
-  { id: '2', courseName: 'HSC', instituteName: '', durationMonths: '', yearOfPassing: '', percentageOrStatus: '', isPhD: false, phdStatus: '' },
-  { id: '3', courseName: 'B.E/B.Tech', instituteName: '', durationMonths: '', yearOfPassing: '', percentageOrStatus: '', isPhD: false, phdStatus: '' },
-  { id: '4', courseName: 'M.E/M.Tech', instituteName: '', durationMonths: '', yearOfPassing: '', percentageOrStatus: '', isPhD: false, phdStatus: '' },
-  { id: '5', courseName: 'Ph.D.', instituteName: '', durationMonths: '', yearOfPassing: '', percentageOrStatus: '', isPhD: true, phdStatus: '' },
+  { id: '1', courseName: 'SSC', instituteName: '', durationMonths: '', yearOfPassing: '', percentageOrStatus: '', isPhD: false, phdStatus: '', phdCertificateFile: null },
+  { id: '2', courseName: 'HSC', instituteName: '', durationMonths: '', yearOfPassing: '', percentageOrStatus: '', isPhD: false, phdStatus: '', phdCertificateFile: null },
+  { id: '3', courseName: 'B.E/B.Tech', instituteName: '', durationMonths: '', yearOfPassing: '', percentageOrStatus: '', isPhD: false, phdStatus: '', phdCertificateFile: null },
+  { id: '4', courseName: 'M.E/M.Tech', instituteName: '', durationMonths: '', yearOfPassing: '', percentageOrStatus: '', isPhD: false, phdStatus: '', phdCertificateFile: null },
+  { id: '5', courseName: 'Ph.D.', instituteName: '', durationMonths: '', yearOfPassing: '', percentageOrStatus: '', isPhD: true, phdStatus: '', phdCertificateFile: null },
 ];
 
 // ==================== UTILITY FUNCTIONS ====================
@@ -329,6 +426,7 @@ const getInitialFormData = (): FormData => ({
   sameAsCorrespondence: false,
   educationalQualifications: [...DEFAULT_EDUCATION_ROWS],
   academicsRecord: [],
+  approvalDetails: [],
   experience: [],
   publications: [],
   technicalParticipation: [],
@@ -346,7 +444,6 @@ const getInitialFormData = (): FormData => ({
     payBand: '',
     pf: '',
     offerLetterFile: null,
-    experienceLetterFile: null,
   },
 });
 
@@ -522,7 +619,7 @@ const EmployeeRecords: React.FC = () => {
   }, []);
 
   // Education handlers
-  const updateEducationRow = useCallback((id: string, field: keyof EducationRow, value: string) => {
+  const updateEducationRow = useCallback((id: string, field: keyof EducationRow, value: any) => {
     setFormData(prev => ({
       ...prev,
       educationalQualifications: prev.educationalQualifications.map(row =>
@@ -543,7 +640,8 @@ const EmployeeRecords: React.FC = () => {
         yearOfPassing: '',
         percentageOrStatus: '',
         isPhD: false,
-        phdStatus: ''
+        phdStatus: '',
+        phdCertificateFile: null
       }]
     }));
   }, [formData.educationalQualifications.length]);
@@ -590,6 +688,50 @@ const EmployeeRecords: React.FC = () => {
     }));
   }, []);
 
+  // Approval Details handlers
+  const addApprovalRow = useCallback(() => {
+    setFormData(prev => ({
+      ...prev,
+      approvalDetails: [...prev.approvalDetails, {
+        id: generateId(),
+        postDesignation: '',
+        faculty: '',
+        approvalAsPer: '',
+        approvalForUGPG: '',
+        postType: '',
+        selectionDoneBy: '',
+        postReservedFor: '',
+        workType: '',
+        approvalType: '',
+        appointedOn: '',
+        universityName: '',
+        collegeName: '',
+        payscale: '',
+        approvalRefNo: '',
+        approvalLetterDate: '',
+        validFromDate: '',
+        toDate: '',
+        documentFile: null
+      }]
+    }));
+  }, []);
+
+  const updateApprovalRow = useCallback((id: string, field: keyof ApprovalRow, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      approvalDetails: prev.approvalDetails.map(row =>
+        row.id === id ? { ...row, [field]: value } : row
+      )
+    }));
+  }, []);
+
+  const removeApprovalRow = useCallback((id: string) => {
+    setFormData(prev => ({
+      ...prev,
+      approvalDetails: prev.approvalDetails.filter(row => row.id !== id)
+    }));
+  }, []);
+
   // Experience handlers
   const addExperienceRow = useCallback((type: 'educational' | 'industrial' | 'research') => {
     setFormData(prev => ({
@@ -601,8 +743,7 @@ const EmployeeRecords: React.FC = () => {
         designation: '',
         fromDate: '',
         toDate: '',
-        offerLetterFile: null,
-        experienceLetterFile: null
+        offerLetterFile: null
       }]
     }));
   }, []);
@@ -638,7 +779,14 @@ const EmployeeRecords: React.FC = () => {
         publicationDate: '',
         journalConferenceName: '',
         publisherName: '',
-        uploadFile: null
+        uploadFile: null,
+        selectedProfiles: [],
+        googleScholarId: '',
+        googleScholarLink: '',
+        scopusId: '',
+        scopusLink: '',
+        orcidId: '',
+        orcidLink: ''
       }]
     }));
   }, []);
@@ -747,7 +895,8 @@ const EmployeeRecords: React.FC = () => {
         participantsCourse: [],
         geoTagPhotos: [],
         eventReport: null,
-        budgetReport: null
+        budgetReport: null,
+        appreciationLetter: null
       }]
     }));
   }, []);
@@ -963,19 +1112,20 @@ const EmployeeRecords: React.FC = () => {
                 />
               </FormField>
 
-              <FormField label="Date of Leaving">
+              <FormField label="Date of Leaving (Admin Only)">
                 <input
                   type="date"
                   value={formData.personalDetails.dateOfLeaving}
-                  onChange={(e) => updatePersonalDetails('dateOfLeaving', e.target.value)}
-                  className="erp-input w-full"
+                  disabled
+                  className="erp-input w-full bg-muted cursor-not-allowed"
+                  title="This field is managed by admin only"
                 />
               </FormField>
 
               <FormField label="Duration/Period">
                 <input
                   type="text"
-                  value={calculateDuration(formData.personalDetails.dateOfJoining, formData.personalDetails.dateOfLeaving)}
+                  value={calculateDuration(formData.personalDetails.dateOfJoining, '')}
                   readOnly
                   className="erp-input w-full bg-muted"
                 />
@@ -1263,7 +1413,7 @@ const EmployeeRecords: React.FC = () => {
         <div className="erp-card">
           <SectionHeader title="Educational Qualifications" />
           <div className="p-4 overflow-x-auto">
-            <table className="erp-table min-w-[700px]">
+            <table className="erp-table min-w-[800px]">
               <thead>
                 <tr>
                   <th>Course Name</th>
@@ -1271,6 +1421,7 @@ const EmployeeRecords: React.FC = () => {
                   <th>Duration (months)</th>
                   <th>Year of Passing</th>
                   <th>% Marks / Status</th>
+                  <th>Certificate</th>
                   <th className="w-16 print:hidden">Action</th>
                 </tr>
               </thead>
@@ -1344,6 +1495,34 @@ const EmployeeRecords: React.FC = () => {
                           className="erp-input w-full"
                           placeholder="e.g., 85%"
                         />
+                      )}
+                    </td>
+                    <td>
+                      {(row.isPhD || row.courseName.toLowerCase().includes('ph.d')) && row.phdStatus === 'awarded' ? (
+                        <div className="relative">
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onChange={(e) => updateEducationRow(row.id, 'phdCertificateFile', e.target.files?.[0] || null)}
+                            className="absolute inset-0 opacity-0 cursor-pointer w-full"
+                          />
+                          {row.phdCertificateFile ? (
+                            <div className="flex items-center gap-1 text-xs bg-primary/10 px-2 py-1 rounded">
+                              <FileText className="w-3 h-3" />
+                              <span className="truncate max-w-[80px]">{row.phdCertificateFile.name}</span>
+                              <button type="button" onClick={(e) => { e.stopPropagation(); updateEducationRow(row.id, 'phdCertificateFile', null); }} className="text-destructive">
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 text-xs text-primary cursor-pointer hover:bg-primary/5 px-2 py-1 rounded border border-dashed border-primary">
+                              <Upload className="w-3 h-3" />
+                              <span>Upload</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </td>
                     <td className="print:hidden">
@@ -1478,11 +1657,12 @@ const EmployeeRecords: React.FC = () => {
                           className="erp-select w-full"
                         >
                           <option value="">-- Select --</option>
-                          {SEMESTERS.map(s => <option key={s} value={s}>Sem {s}</option>)}
+                          {SEMESTERS.map(s => <option key={s} value={s}>{s}</option>)}
+                          <option value="Year">Year</option>
                         </select>
                       </FormField>
 
-                      <FormField label="Students Attended Exam">
+                      <FormField label="Students Attended">
                         <input
                           type="number"
                           value={row.studentsAttended}
@@ -1525,6 +1705,181 @@ const EmployeeRecords: React.FC = () => {
           </div>
         </div>
 
+        {/* Previous Approve Letter Details (Only for Teaching Staff) */}
+        <div className="erp-card">
+          <SectionHeader title="Previous Approve Letter Details (Only for Teaching Staff)" />
+          <div className="p-4">
+            {formData.approvalDetails.length === 0 ? (
+              <p className="text-sm text-muted-foreground mb-3">No approval records added yet.</p>
+            ) : (
+              <div className="space-y-6">
+                {formData.approvalDetails.map((row, idx) => (
+                  <div key={row.id} className="border border-border rounded p-4 bg-muted/30 animate-fade-in">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-sm font-semibold text-foreground">Approval #{idx + 1}</span>
+                      <button type="button" onClick={() => removeApprovalRow(row.id)} className="p-1 text-destructive hover:bg-destructive/10 rounded print:hidden">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Subject and Course Details */}
+                    <div className="mb-4">
+                      <h5 className="text-xs font-semibold text-muted-foreground mb-2 border-b border-border pb-1">Subject and Course Details</h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        <FormField label="Post Designation" required>
+                          <select value={row.postDesignation} onChange={(e) => updateApprovalRow(row.id, 'postDesignation', e.target.value)} className="erp-select w-full">
+                            <option value="">-- Select --</option>
+                            {POST_DESIGNATIONS.map(p => <option key={p} value={p}>{p}</option>)}
+                          </select>
+                        </FormField>
+                        <FormField label="Faculty" required>
+                          <select value={row.faculty} onChange={(e) => updateApprovalRow(row.id, 'faculty', e.target.value)} className="erp-select w-full">
+                            <option value="">-- Select --</option>
+                            {FACULTIES.map(f => <option key={f} value={f}>{f}</option>)}
+                          </select>
+                        </FormField>
+                        <FormField label="Approval As Per" required>
+                          <select value={row.approvalAsPer} onChange={(e) => updateApprovalRow(row.id, 'approvalAsPer', e.target.value)} className="erp-select w-full">
+                            <option value="">-- Select --</option>
+                            <option value="AICTE">AICTE</option>
+                            <option value="UGC">UGC</option>
+                            <option value="University">University</option>
+                          </select>
+                        </FormField>
+                        <FormField label="Approval For Whether UG/PG" required>
+                          <select value={row.approvalForUGPG} onChange={(e) => updateApprovalRow(row.id, 'approvalForUGPG', e.target.value)} className="erp-select w-full">
+                            <option value="">-- Select --</option>
+                            {APPROVAL_FOR_UGPG.map(a => <option key={a} value={a}>{a}</option>)}
+                          </select>
+                        </FormField>
+                      </div>
+                    </div>
+
+                    {/* Selection Details */}
+                    <div className="mb-4">
+                      <h5 className="text-xs font-semibold text-muted-foreground mb-2 border-b border-border pb-1">Selection Details</h5>
+                      <p className="text-[10px] text-muted-foreground mb-2 italic">
+                        If your designation has been changed by pay scale fixation: Select promotion Non CAS. If you have been promoted through CAS select promotion by CAS.
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        <FormField label="Post Type" required>
+                          <select value={row.postType} onChange={(e) => updateApprovalRow(row.id, 'postType', e.target.value)} className="erp-select w-full">
+                            <option value="">-- Select --</option>
+                            {POST_TYPES.map(p => <option key={p} value={p}>{p}</option>)}
+                          </select>
+                        </FormField>
+                        <FormField label="Selection For This Post Done By" required>
+                          <select value={row.selectionDoneBy} onChange={(e) => updateApprovalRow(row.id, 'selectionDoneBy', e.target.value)} className="erp-select w-full">
+                            <option value="">-- Select --</option>
+                            {SELECTION_DONE_BY.map(s => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        </FormField>
+                        <FormField label="Post Was Reserved For" required>
+                          <select value={row.postReservedFor} onChange={(e) => updateApprovalRow(row.id, 'postReservedFor', e.target.value)} className="erp-select w-full">
+                            <option value="">-- Please Select --</option>
+                            {POST_RESERVED_FOR.map(p => <option key={p} value={p}>{p}</option>)}
+                          </select>
+                        </FormField>
+                      </div>
+                    </div>
+
+                    {/* Appointment Details */}
+                    <div className="mb-4">
+                      <h5 className="text-xs font-semibold text-muted-foreground mb-2 border-b border-border pb-1">Appointment Details</h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        <FormField label="Fulltime/Parttime/Clock Hour Basis">
+                          <div className="flex flex-wrap gap-3 h-8 items-center">
+                            <label className="flex items-center gap-1 text-xs">
+                              <input type="radio" name={`workType-${row.id}`} checked={row.workType === 'fullTime'} onChange={() => updateApprovalRow(row.id, 'workType', 'fullTime')} className="w-3 h-3" />
+                              Full Time
+                            </label>
+                            <label className="flex items-center gap-1 text-xs">
+                              <input type="radio" name={`workType-${row.id}`} checked={row.workType === 'partTime'} onChange={() => updateApprovalRow(row.id, 'workType', 'partTime')} className="w-3 h-3" />
+                              Part Time
+                            </label>
+                            <label className="flex items-center gap-1 text-xs">
+                              <input type="radio" name={`workType-${row.id}`} checked={row.workType === 'clockHourBasis'} onChange={() => updateApprovalRow(row.id, 'workType', 'clockHourBasis')} className="w-3 h-3" />
+                              Clock Hour Basis
+                            </label>
+                          </div>
+                        </FormField>
+                        <FormField label="Approval Type">
+                          <div className="flex gap-4 h-8 items-center">
+                            <label className="flex items-center gap-1 text-xs">
+                              <input type="radio" name={`approvalType-${row.id}`} checked={row.approvalType === 'permanent'} onChange={() => updateApprovalRow(row.id, 'approvalType', 'permanent')} className="w-3 h-3" />
+                              Permanent
+                            </label>
+                            <label className="flex items-center gap-1 text-xs">
+                              <input type="radio" name={`approvalType-${row.id}`} checked={row.approvalType === 'temporary'} onChange={() => updateApprovalRow(row.id, 'approvalType', 'temporary')} className="w-3 h-3" />
+                              Temporary
+                            </label>
+                          </div>
+                        </FormField>
+                        <FormField label="Appointed On" required>
+                          <select value={row.appointedOn} onChange={(e) => updateApprovalRow(row.id, 'appointedOn', e.target.value)} className="erp-select w-full">
+                            <option value="">-- Select --</option>
+                            {APPOINTED_ON.map(a => <option key={a} value={a}>{a}</option>)}
+                          </select>
+                        </FormField>
+                        <FormField label="University Name" required>
+                          <select value={row.universityName} onChange={(e) => updateApprovalRow(row.id, 'universityName', e.target.value)} className="erp-select w-full">
+                            <option value="">-- Select --</option>
+                            {INDIAN_UNIVERSITIES.map(u => <option key={u} value={u}>{u}</option>)}
+                          </select>
+                        </FormField>
+                        <FormField label="College Name" required className="sm:col-span-2">
+                          <input type="text" value={row.collegeName} onChange={(e) => updateApprovalRow(row.id, 'collegeName', e.target.value)} className="erp-input w-full" placeholder="College Name With Full Address" />
+                        </FormField>
+                      </div>
+                    </div>
+
+                    {/* Approval Letter Details */}
+                    <div>
+                      <h5 className="text-xs font-semibold text-muted-foreground mb-2 border-b border-border pb-1">Approval Letter Details</h5>
+                      <p className="text-[10px] text-muted-foreground mb-2 italic">
+                        Note: For Pune University department teachers use your appointment letter as approval letter. Is this your current Appointment/Approval/Designation/Payscale?
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        <FormField label="Payscale" required>
+                          <div className="flex gap-4 h-8 items-center">
+                            <label className="flex items-center gap-1 text-xs">
+                              <input type="radio" name={`payscale-${row.id}`} checked={row.payscale === 'isCurrent'} onChange={() => updateApprovalRow(row.id, 'payscale', 'isCurrent')} className="w-3 h-3" />
+                              Is Current
+                            </label>
+                            <label className="flex items-center gap-1 text-xs">
+                              <input type="radio" name={`payscale-${row.id}`} checked={row.payscale === 'isBack'} onChange={() => updateApprovalRow(row.id, 'payscale', 'isBack')} className="w-3 h-3" />
+                              Is Back
+                            </label>
+                          </div>
+                        </FormField>
+                        <FormField label="Approval Ref. No" required>
+                          <input type="text" value={row.approvalRefNo} onChange={(e) => updateApprovalRow(row.id, 'approvalRefNo', e.target.value)} className="erp-input w-full" />
+                        </FormField>
+                        <FormField label="Approval Letter Date" required>
+                          <input type="date" value={row.approvalLetterDate} onChange={(e) => updateApprovalRow(row.id, 'approvalLetterDate', e.target.value)} className="erp-input w-full" />
+                        </FormField>
+                        <FormField label="Valid From Date" required>
+                          <input type="date" value={row.validFromDate} onChange={(e) => updateApprovalRow(row.id, 'validFromDate', e.target.value)} className="erp-input w-full" />
+                        </FormField>
+                        <FormField label="To Date" required>
+                          <input type="date" value={row.toDate} onChange={(e) => updateApprovalRow(row.id, 'toDate', e.target.value)} className="erp-input w-full" />
+                        </FormField>
+                        <FormField label="Document" className="sm:col-span-2">
+                          <div className="text-[10px] text-primary mb-1">pdf, jpeg, png file format supported</div>
+                          <FileUploadField label="" file={row.documentFile} onFileChange={(f) => updateApprovalRow(row.id, 'documentFile', f)} />
+                        </FormField>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button type="button" onClick={addApprovalRow} className="mt-3 erp-btn-primary flex items-center gap-1 text-xs print:hidden">
+              <Plus className="w-3 h-3" /> Add New Approval
+            </button>
+          </div>
+        </div>
+
         {/* Experience */}
         <div className="erp-card">
           <SectionHeader title="Experience" />
@@ -1544,7 +1899,7 @@ const EmployeeRecords: React.FC = () => {
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                         <FormField label="Organisation">
                           <input type="text" value={row.organisation} onChange={(e) => updateExperienceRow(row.id, 'organisation', e.target.value)} className="erp-input w-full" />
                         </FormField>
@@ -1560,8 +1915,7 @@ const EmployeeRecords: React.FC = () => {
                         <FormField label="Duration">
                           <input type="text" value={calculateDuration(row.fromDate, row.toDate)} readOnly className="erp-input w-full bg-muted" />
                         </FormField>
-                        <FileUploadField label="Offer Letter / Payslip" hint="(Salary in CTC)" file={row.offerLetterFile} onFileChange={(f) => updateExperienceRow(row.id, 'offerLetterFile', f)} />
-                        <FileUploadField label="Experience Letter" file={row.experienceLetterFile} onFileChange={(f) => updateExperienceRow(row.id, 'experienceLetterFile', f)} />
+                        <FileUploadField label="Offer Letter" hint="(Salary in CTC)" file={row.offerLetterFile} onFileChange={(f) => updateExperienceRow(row.id, 'offerLetterFile', f)} />
                       </div>
                     </div>
                   ))}
@@ -1587,7 +1941,7 @@ const EmployeeRecords: React.FC = () => {
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                         <FormField label="Organisation">
                           <input type="text" value={row.organisation} onChange={(e) => updateExperienceRow(row.id, 'organisation', e.target.value)} className="erp-input w-full" />
                         </FormField>
@@ -1603,8 +1957,7 @@ const EmployeeRecords: React.FC = () => {
                         <FormField label="Duration">
                           <input type="text" value={calculateDuration(row.fromDate, row.toDate)} readOnly className="erp-input w-full bg-muted" />
                         </FormField>
-                        <FileUploadField label="Offer Letter / Payslip" hint="(Salary in CTC)" file={row.offerLetterFile} onFileChange={(f) => updateExperienceRow(row.id, 'offerLetterFile', f)} />
-                        <FileUploadField label="Experience Letter" file={row.experienceLetterFile} onFileChange={(f) => updateExperienceRow(row.id, 'experienceLetterFile', f)} />
+                        <FileUploadField label="Offer Letter" hint="(Salary in CTC)" file={row.offerLetterFile} onFileChange={(f) => updateExperienceRow(row.id, 'offerLetterFile', f)} />
                       </div>
                     </div>
                   ))}
@@ -1630,7 +1983,7 @@ const EmployeeRecords: React.FC = () => {
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                         <FormField label="Organisation">
                           <input type="text" value={row.organisation} onChange={(e) => updateExperienceRow(row.id, 'organisation', e.target.value)} className="erp-input w-full" />
                         </FormField>
@@ -1646,8 +1999,7 @@ const EmployeeRecords: React.FC = () => {
                         <FormField label="Duration">
                           <input type="text" value={calculateDuration(row.fromDate, row.toDate)} readOnly className="erp-input w-full bg-muted" />
                         </FormField>
-                        <FileUploadField label="Offer Letter / Payslip" hint="(Salary in CTC)" file={row.offerLetterFile} onFileChange={(f) => updateExperienceRow(row.id, 'offerLetterFile', f)} />
-                        <FileUploadField label="Experience Letter" file={row.experienceLetterFile} onFileChange={(f) => updateExperienceRow(row.id, 'experienceLetterFile', f)} />
+                        <FileUploadField label="Offer Letter" hint="(Salary in CTC)" file={row.offerLetterFile} onFileChange={(f) => updateExperienceRow(row.id, 'offerLetterFile', f)} />
                       </div>
                     </div>
                   ))}
@@ -1706,6 +2058,62 @@ const EmployeeRecords: React.FC = () => {
                           </div>
                         </FormField>
                       )}
+
+                      {/* Research Profile Selection */}
+                      <FormField label="Research Profile IDs" className="sm:col-span-2 lg:col-span-4">
+                        <div className="flex flex-wrap gap-4 mb-2">
+                          {RESEARCH_PROFILES.map(profile => (
+                            <label key={profile} className="flex items-center gap-2 text-xs cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={row.selectedProfiles.includes(profile)}
+                                onChange={(e) => {
+                                  const newProfiles = e.target.checked
+                                    ? [...row.selectedProfiles, profile]
+                                    : row.selectedProfiles.filter(p => p !== profile);
+                                  updatePublicationRow(row.id, 'selectedProfiles', newProfiles);
+                                }}
+                                className="w-4 h-4 rounded border-input text-primary focus:ring-primary"
+                              />
+                              {profile}
+                            </label>
+                          ))}
+                        </div>
+                        {row.selectedProfiles.length > 0 && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-2 p-3 bg-background rounded border border-border">
+                            {row.selectedProfiles.includes('Google Scholar') && (
+                              <>
+                                <FormField label="Google Scholar ID">
+                                  <input type="text" value={row.googleScholarId} onChange={(e) => updatePublicationRow(row.id, 'googleScholarId', e.target.value)} className="erp-input w-full" placeholder="Enter ID" />
+                                </FormField>
+                                <FormField label="Google Scholar Profile Link">
+                                  <input type="url" value={row.googleScholarLink} onChange={(e) => updatePublicationRow(row.id, 'googleScholarLink', e.target.value)} className="erp-input w-full" placeholder="https://..." />
+                                </FormField>
+                              </>
+                            )}
+                            {row.selectedProfiles.includes('Scopus') && (
+                              <>
+                                <FormField label="Scopus ID">
+                                  <input type="text" value={row.scopusId} onChange={(e) => updatePublicationRow(row.id, 'scopusId', e.target.value)} className="erp-input w-full" placeholder="Enter ID" />
+                                </FormField>
+                                <FormField label="Scopus Profile Link">
+                                  <input type="url" value={row.scopusLink} onChange={(e) => updatePublicationRow(row.id, 'scopusLink', e.target.value)} className="erp-input w-full" placeholder="https://..." />
+                                </FormField>
+                              </>
+                            )}
+                            {row.selectedProfiles.includes('ORCID iD') && (
+                              <>
+                                <FormField label="ORCID iD">
+                                  <input type="text" value={row.orcidId} onChange={(e) => updatePublicationRow(row.id, 'orcidId', e.target.value)} className="erp-input w-full" placeholder="0000-0000-0000-0000" />
+                                </FormField>
+                                <FormField label="ORCID Profile Link">
+                                  <input type="url" value={row.orcidLink} onChange={(e) => updatePublicationRow(row.id, 'orcidLink', e.target.value)} className="erp-input w-full" placeholder="https://orcid.org/..." />
+                                </FormField>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </FormField>
 
                       <FormField label="Department">
                         <select value={row.department} onChange={(e) => updatePublicationRow(row.id, 'department', e.target.value)} className="erp-select w-full">
@@ -1961,7 +2369,7 @@ const EmployeeRecords: React.FC = () => {
                         <input type="number" value={row.noOfParticipants} onChange={(e) => updateEventRow(row.id, 'noOfParticipants', e.target.value)} className="erp-input w-full" min="0" />
                       </FormField>
 
-                      <FormField label="Participants Course" className="sm:col-span-2">
+                      <FormField label="Participants Course" className="sm:col-span-2 lg:col-span-4">
                         <div className="flex flex-wrap gap-3 min-h-[32px] items-center">
                           {PARTICIPANT_COURSES.map(c => (
                             <label key={c} className="flex items-center gap-1 text-xs">
@@ -1982,9 +2390,13 @@ const EmployeeRecords: React.FC = () => {
                         </div>
                       </FormField>
 
-                      <MultiFileUpload label="Photos" hint="(3 photos with Geo Tag)" files={row.geoTagPhotos} onFilesChange={(f) => updateEventRow(row.id, 'geoTagPhotos', f)} maxFiles={3} />
-                      <FileUploadField label="Event Report" hint="(Event Report)" file={row.eventReport} onFileChange={(f) => updateEventRow(row.id, 'eventReport', f)} />
-                      <FileUploadField label="Budget Report" hint="(Approved Fund Details)" file={row.budgetReport} onFileChange={(f) => updateEventRow(row.id, 'budgetReport', f)} />
+                      {/* 4 uploads in one row */}
+                      <div className="sm:col-span-2 lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        <MultiFileUpload label="Photos" hint="(3 photos with Geo Tag)" files={row.geoTagPhotos} onFilesChange={(f) => updateEventRow(row.id, 'geoTagPhotos', f)} maxFiles={3} />
+                        <FileUploadField label="Event Report" hint="(Event Report)" file={row.eventReport} onFileChange={(f) => updateEventRow(row.id, 'eventReport', f)} />
+                        <FileUploadField label="Budget Report" hint="(Approved Fund Details)" file={row.budgetReport} onFileChange={(f) => updateEventRow(row.id, 'budgetReport', f)} />
+                        <FileUploadField label="Appreciation Letter" hint="(Appreciation Letter)" file={row.appreciationLetter} onFileChange={(f) => updateEventRow(row.id, 'appreciationLetter', f)} />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -2036,7 +2448,7 @@ const EmployeeRecords: React.FC = () => {
                           value={row.remarks}
                           onChange={(e) => updateResponsibilityRow(row.id, 'remarks', e.target.value)}
                           className="erp-input w-full h-16 resize-none"
-                          placeholder="Who assigned, for which term, conditions..."
+                          placeholder="Who assigned, for which term, conditions, work done..."
                         />
                       </FormField>
                     </div>
@@ -2091,44 +2503,33 @@ const EmployeeRecords: React.FC = () => {
                 <input type="text" value={formData.salaryDetails.pf} onChange={(e) => updateSalaryDetails('pf', e.target.value)} className="erp-input w-full" />
               </FormField>
 
-              <FileUploadField label="Offer Letter / Payslip" hint="(Salary in CTC)" file={formData.salaryDetails.offerLetterFile} onFileChange={(f) => updateSalaryDetails('offerLetterFile', f)} />
-              <FileUploadField label="Experience Letter" file={formData.salaryDetails.experienceLetterFile} onFileChange={(f) => updateSalaryDetails('experienceLetterFile', f)} />
+              <FileUploadField label="Offer Letter" hint="(Salary in CTC)" file={formData.salaryDetails.offerLetterFile} onFileChange={(f) => updateSalaryDetails('offerLetterFile', f)} />
             </div>
           </div>
         </div>
 
-        {/* Bottom Action Buttons */}
-        <div className="bg-card rounded-b-lg border border-t-0 border-border px-4 py-4 flex flex-wrap gap-2 justify-center print:hidden">
-          <button type="button" onClick={handleSaveDraft} className="erp-btn-secondary flex items-center gap-1">
-            <Download className="w-4 h-4" /> Save as Draft
-          </button>
-          <button type="button" onClick={handleExportPDF} className="erp-btn-secondary flex items-center gap-1">
-            <FileText className="w-4 h-4" /> Export PDF
-          </button>
-          <button type="submit" className="erp-btn-success flex items-center gap-1">
-            <Send className="w-4 h-4" /> Submit Form
-          </button>
-        </div>
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 print:hidden">
+            <div className="bg-card rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl animate-scale-in">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-100 mx-auto mb-4">
+                <Check className="w-6 h-6 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-center text-foreground mb-2">Submission Successful!</h3>
+              <p className="text-sm text-muted-foreground text-center mb-4">
+                Your employee record has been submitted successfully. Check console for JSON output.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full erp-btn-primary"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </form>
-
-      {/* Success Modal */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 print:hidden">
-          <div className="bg-card rounded-lg p-6 max-w-sm mx-4 shadow-xl animate-fade-in">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-success/10 mx-auto mb-4">
-              <Check className="w-6 h-6 text-[hsl(var(--success))]" />
-            </div>
-            <h3 className="text-lg font-semibold text-center mb-2">Form Submitted Successfully!</h3>
-            <p className="text-sm text-muted-foreground text-center mb-4">Your employee record has been submitted. Check the console for the JSON output.</p>
-            <button
-              onClick={() => setShowSuccessModal(false)}
-              className="w-full erp-btn-primary"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
